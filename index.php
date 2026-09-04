@@ -35,33 +35,39 @@ $winningPrize = null;
 $prizes = [
     [
         "id" => 1,
-        "title" => "1 X hydrating Treatment",
-        "worth" => "Worth $98 - $158"
+        "title" => "1 X Hydrating Treatment",
+        "description" => "Worth $98 - $158",
+        "weight" => 16.6
     ],
     [
         "id" => 2,
         "title" => "1 X Hair Ampoule",
-        "worth" => "Worth $58"
+        "description" => "Worth $58",
+        "weight" => 25
     ],
     [
         "id" => 3,
         "title" => "1 X Scalp Detox Treatment",
-        "worth" => "Worth $248"
+        "description" => "Worth $248",
+        "weight" => 16.6
     ],
     [
         "id" => 4,
         "title" => "$50 Service Voucher",
-        "worth" => "For all chemical services<br>Based on A-la-carte price"
+        "description" => "For all chemical services, based on A-la-carte price",
+        "weight" => 16.8
     ],
     [
         "id" => 5,
         "title" => "1 X Herbal Spa Protection",
-        "worth" => "Worth $78"
+        "description" => "Worth $78",
+        "weight" => 25
     ],
     [
         "id" => 6,
         "title" => "1 X Jean Yip Group Product Hamper",
-        "worth" => "Worth $688"
+        "description" => "Worth $688",
+        "weight" => 0
     ]
 ];
 
@@ -83,8 +89,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $package_date = trim($_POST["package_date"] ?? "");
     $package_number = trim($_POST["package_number"] ?? "");
     $amount_collected = trim($_POST["amount_collected"] ?? "");
+    $receipt_number = trim($_POST["receipt_number"] ?? "");
 
     $prize_id = intval($_POST["prize_id"] ?? 0);
+
 
     /*
     |--------------------------------------------------------------------------
@@ -101,6 +109,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         empty($package_date) ||
         empty($package_number) ||
         empty($amount_collected) ||
+        empty($receipt_number) ||
         $prize_id < 1 ||
         $prize_id > count($prizes)
     ) {
@@ -116,6 +125,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         $error = "Please enter a valid email address.";
 
+    }
+
+    elseif (!preg_match('/^\d{7}$/', $receipt_number)) {
+    $error = "Please enter the last 7 digits of the receipt number.";
     }
       /*
     |--------------------------------------------------------------------------
@@ -189,9 +202,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
                 "packageDate" => $package_date,
 
-                "packageNumber" => $package_number
+                "packageNumber" => $package_number,
+                
+                "receiptNumber" => $receipt_number,
 
             ];
+
 
 
             $jsonData = json_encode($googleData);
@@ -879,6 +895,23 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         required>
 
                 </div>  
+                 <div class="form-group">
+
+                    <label for="receipt_number">
+                        Receipt Number (last 7 digits)
+                    </label>
+
+                    <input
+                        type="text"
+                        id="receipt_number"
+                        name="receipt_number"
+                        maxlength="7"
+                        pattern="[0-9]{7}"
+                        inputmode="numeric"
+                        required
+                    >
+
+                </div>
                 <!-- HIDDEN PRIZE -->
 
                 <input
@@ -914,28 +947,40 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
 const prizes = [
     {
-        title: "1 X hydrating Treatment",
-        worth: "Worth $98 - $158"
+        id: 1,
+        title: "1 X Hydrating Treatment",
+        worth: "Worth $98 - $158",
+        weight: 16.6
     },
     {
+        id: 2,
         title: "1 X Hair Ampoule",
-        worth: "Worth $58"
+        worth: "Worth $58",
+        weight: 25
     },
     {
+        id: 3,
         title: "1 X Scalp Detox Treatment",
-        worth: "Worth $248"
+        worth: "Worth $248",
+        weight: 16.6
     },
     {
+        id: 4,
         title: "$50 Service Voucher",
-        worth: "For all chemical services - Based on A-la-carte price"
+        worth: "For all chemical services - Based on A-la-carte price",
+        weight: 16.8
     },
     {
+        id: 5,
         title: "1 X Herbal Spa Protection",
-        worth: "Worth $78"
+        worth: "Worth $78",
+        weight: 25
     },
     {
+        id: 6,
         title: "1 X Jean Yip Group Product Hamper",
-        worth: "Worth $688"
+        worth: "Worth $688",
+        weight: 0
     }
 ];
 
@@ -986,13 +1031,16 @@ function drawWheel(rotation = 0) {
 
         /*
         |--------------------------------------------------------------------------
-        | Alternating Red / White
+        | Segment
         |--------------------------------------------------------------------------
         */
 
         ctx.beginPath();
 
-        ctx.moveTo(center, center);
+        ctx.moveTo(
+            center,
+            center
+        );
 
         ctx.arc(
             center,
@@ -1004,6 +1052,13 @@ function drawWheel(rotation = 0) {
 
         ctx.closePath();
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | Alternating Red / White
+        |--------------------------------------------------------------------------
+        */
+
         ctx.fillStyle =
             i % 2 === 0
                 ? "#a40000"
@@ -1011,7 +1066,15 @@ function drawWheel(rotation = 0) {
 
         ctx.fill();
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | Border
+        |--------------------------------------------------------------------------
+        */
+
         ctx.lineWidth = 3;
+
         ctx.strokeStyle = "#8d0000";
 
         ctx.stroke();
@@ -1019,13 +1082,16 @@ function drawWheel(rotation = 0) {
 
         /*
         |--------------------------------------------------------------------------
-        | Text
+        | Prize Text
         |--------------------------------------------------------------------------
         */
 
         ctx.save();
 
-        ctx.translate(center, center);
+        ctx.translate(
+            center,
+            center
+        );
 
         ctx.rotate(
             startAngle +
@@ -1034,11 +1100,28 @@ function drawWheel(rotation = 0) {
 
         ctx.textAlign = "right";
 
+        /*
+        |--------------------------------------------------------------------------
+        | Prize title colour
+        |--------------------------------------------------------------------------
+        */
+
         if (i % 2 === 0) {
+
             ctx.fillStyle = "#ffffff";
+
         } else {
+
             ctx.fillStyle = "#8d0000";
+
         }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Prize title
+        |--------------------------------------------------------------------------
+        */
 
         ctx.font =
             "bold 16px Arial";
@@ -1063,6 +1146,12 @@ function drawWheel(rotation = 0) {
 
         });
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | Prize value
+        |--------------------------------------------------------------------------
+        */
 
         ctx.font =
             "12px Arial";
@@ -1094,7 +1183,7 @@ function drawWheel(rotation = 0) {
 
     /*
     |--------------------------------------------------------------------------
-    | Center Circle
+    | CENTER CIRCLE
     |--------------------------------------------------------------------------
     */
 
@@ -1118,6 +1207,12 @@ function drawWheel(rotation = 0) {
 
     ctx.stroke();
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | CENTER TEXT
+    |--------------------------------------------------------------------------
+    */
 
     ctx.fillStyle = "#8d0000";
 
@@ -1145,7 +1240,7 @@ function drawWheel(rotation = 0) {
 
 /*
 |--------------------------------------------------------------------------
-| Split Text
+| SPLIT TEXT
 |--------------------------------------------------------------------------
 */
 
@@ -1158,39 +1253,47 @@ function splitText(text, maxLength) {
 
     let current = "";
 
+
     words.forEach(function(word) {
 
-        if (
-            (current + " " + word).trim()
-                .length > maxLength
-        ) {
+        const test =
+            (current + " " + word).trim();
+
+
+        if (test.length > maxLength) {
 
             if (current !== "") {
+
                 lines.push(current);
+
             }
 
             current = word;
 
         } else {
 
-            current =
-                (current + " " + word).trim();
+            current = test;
 
         }
 
     });
 
+
     if (current !== "") {
+
         lines.push(current);
+
     }
 
+
     return lines;
+
 }
 
 
 /*
 |--------------------------------------------------------------------------
-| Initial Wheel
+| INITIAL WHEEL
 |--------------------------------------------------------------------------
 */
 
@@ -1199,7 +1302,7 @@ drawWheel();
 
 /*
 |--------------------------------------------------------------------------
-| SPIN
+| SPIN BUTTON
 |--------------------------------------------------------------------------
 */
 
@@ -1211,33 +1314,154 @@ let currentRotation = 0;
 let spinning = false;
 
 
+/*
+|--------------------------------------------------------------------------
+| WEIGHTED RANDOM PRIZE
+|--------------------------------------------------------------------------
+|
+| Total:
+|
+| 7 + 30 + 3 + 35 + 25 + 0 = 100
+|
+| Therefore:
+|
+| Prize 1 = 7%
+| Prize 2 = 30%
+| Prize 3 = 3%
+| Prize 4 = 35%
+| Prize 5 = 25%
+| Prize 6 = 0%
+|
+|--------------------------------------------------------------------------
+*/
+
+
+function getWeightedPrizeIndex() {
+
+    let totalWeight = 0;
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Calculate total weight
+    |--------------------------------------------------------------------------
+    */
+
+    prizes.forEach(function(prize) {
+
+        totalWeight += prize.weight;
+
+    });
+
+
+    if (totalWeight <= 0) {
+
+        return 0;
+
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Generate random number
+    |--------------------------------------------------------------------------
+    */
+
+    let random =
+        Math.random() * totalWeight;
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Find winning prize
+    |--------------------------------------------------------------------------
+    */
+
+    for (
+        let i = 0;
+        i < prizes.length;
+        i++
+    ) {
+
+        random -= prizes[i].weight;
+
+
+        if (random < 0) {
+
+            return i;
+
+        }
+
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Fallback
+    |--------------------------------------------------------------------------
+    */
+
+    return 0;
+
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| SPIN
+|--------------------------------------------------------------------------
+*/
+
 spinButton.addEventListener(
     "click",
     function() {
 
+        /*
+        |--------------------------------------------------------------------------
+        | Prevent double click
+        |--------------------------------------------------------------------------
+        */
+
         if (spinning) {
+
             return;
+
         }
+
 
         spinning = true;
 
         spinButton.disabled = true;
 
+
         /*
         |--------------------------------------------------------------------------
-        | Random winning prize
+        | Select weighted winner
         |--------------------------------------------------------------------------
         */
 
         const winnerIndex =
-            Math.floor(
-                Math.random() * prizes.length
-            );
+            getWeightedPrizeIndex();
+
+
+        const winnerPrize =
+            prizes[winnerIndex];
+
+
+        console.log(
+            "Winner:",
+            winnerPrize.title
+        );
+
+        console.log(
+            "Winner ID:",
+            winnerPrize.id
+        );
 
 
         /*
         |--------------------------------------------------------------------------
-        | Calculate rotation
+        | Calculate prize position
         |--------------------------------------------------------------------------
         */
 
@@ -1246,23 +1470,55 @@ spinButton.addEventListener(
             segmentAngle / 2;
 
 
+        /*
+        |--------------------------------------------------------------------------
+        | Pointer is at top
+        |--------------------------------------------------------------------------
+        */
+
         const pointerAngle =
             -Math.PI / 2;
 
 
-        const targetRotation =
+        /*
+        |--------------------------------------------------------------------------
+        | Calculate target rotation
+        |--------------------------------------------------------------------------
+        */
+
+        let targetRotation =
             pointerAngle -
             segmentCenter;
 
 
         /*
         |--------------------------------------------------------------------------
-        | Add multiple rotations
+        | Keep wheel rotating forward
+        |--------------------------------------------------------------------------
+        */
+
+        const fullRotation =
+            Math.PI * 2;
+
+
+        while (
+            targetRotation <= currentRotation
+        ) {
+
+            targetRotation +=
+                fullRotation;
+
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Add 6 extra spins
         |--------------------------------------------------------------------------
         */
 
         const extraSpins =
-            6 * Math.PI * 2;
+            6 * fullRotation;
 
 
         const finalRotation =
@@ -1270,9 +1526,14 @@ spinButton.addEventListener(
             extraSpins;
 
 
+        /*
+        |--------------------------------------------------------------------------
+        | Animation settings
+        |--------------------------------------------------------------------------
+        */
+
         const startRotation =
             currentRotation;
-
 
         const duration =
             5500;
@@ -1290,7 +1551,9 @@ spinButton.addEventListener(
         function animate(currentTime) {
 
             const elapsed =
-                currentTime - startTime;
+                currentTime -
+                startTime;
+
 
             let progress =
                 Math.min(
@@ -1313,14 +1576,37 @@ spinButton.addEventListener(
                 );
 
 
+            /*
+            |--------------------------------------------------------------------------
+            | Update rotation
+            |--------------------------------------------------------------------------
+            */
+
             currentRotation =
                 startRotation +
-                (finalRotation - startRotation) *
+                (
+                    finalRotation -
+                    startRotation
+                ) *
                 ease;
 
 
-            drawWheel(currentRotation);
+            /*
+            |--------------------------------------------------------------------------
+            | Redraw wheel
+            |--------------------------------------------------------------------------
+            */
 
+            drawWheel(
+                currentRotation
+            );
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Continue animation
+            |--------------------------------------------------------------------------
+            */
 
             if (progress < 1) {
 
@@ -1330,7 +1616,20 @@ spinButton.addEventListener(
 
             } else {
 
+                /*
+                |--------------------------------------------------------------------------
+                | Spin finished
+                |--------------------------------------------------------------------------
+                */
+
                 spinning = false;
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | Show winner
+                |--------------------------------------------------------------------------
+                */
 
                 showWinner(
                     winnerIndex
@@ -1361,41 +1660,113 @@ function showWinner(index) {
         prizes[index];
 
 
-    document.getElementById(
-        "winner"
-    ).textContent =
-        prize.title;
+    /*
+    |--------------------------------------------------------------------------
+    | Winner title
+    |--------------------------------------------------------------------------
+    */
+
+    const winnerElement =
+        document.getElementById(
+            "winner"
+        );
 
 
-    document.getElementById(
-        "worth"
-    ).textContent =
-        prize.worth;
+    if (winnerElement) {
+
+        winnerElement.textContent =
+            prize.title;
+
+    }
 
 
-    document.getElementById(
-        "prize_id"
-    ).value =
-        index + 1;
+    /*
+    |--------------------------------------------------------------------------
+    | Winner value
+    |--------------------------------------------------------------------------
+    */
+
+    const worthElement =
+        document.getElementById(
+            "worth"
+        );
 
 
-    document.getElementById(
-        "result"
-    ).classList.add("show");
+    if (worthElement) {
 
+        worthElement.textContent =
+            prize.worth;
+
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Hidden prize ID
+    |--------------------------------------------------------------------------
+    */
+
+    const prizeIdElement =
+        document.getElementById(
+            "prize_id"
+        );
+
+
+    if (prizeIdElement) {
+
+        prizeIdElement.value =
+            prize.id;
+
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Show result
+    |--------------------------------------------------------------------------
+    */
+
+    const resultElement =
+        document.getElementById(
+            "result"
+        );
+
+
+    if (resultElement) {
+
+        resultElement.classList.add(
+            "show"
+        );
+
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Show form
+    |--------------------------------------------------------------------------
+    */
 
     setTimeout(function() {
 
-        document.getElementById(
-            "formSection"
-        ).classList.add("show");
+        const formSection =
+            document.getElementById(
+                "formSection"
+            );
 
 
-        document.getElementById(
-            "formSection"
-        ).scrollIntoView({
-            behavior: "smooth"
-        });
+        if (formSection) {
+
+            formSection.classList.add(
+                "show"
+            );
+
+
+            formSection.scrollIntoView({
+                behavior: "smooth"
+            });
+
+        }
 
     }, 700);
 
