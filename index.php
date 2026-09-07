@@ -37,31 +37,31 @@ $prizes = [
         "id" => 1,
         "title" => "1 X Hydrating Treatment",
         "description" => "Worth $98 - $158",
-        "weight" => 16.6
+        "weight" => 20
     ],
     [
         "id" => 2,
         "title" => "1 X Hair Ampoule",
         "description" => "Worth $58",
-        "weight" => 25
+        "weight" => 20
     ],
     [
         "id" => 3,
         "title" => "1 X Scalp Detox Treatment",
         "description" => "Worth $248",
-        "weight" => 16.6
+        "weight" => 20
     ],
     [
         "id" => 4,
         "title" => "$50 Service Voucher",
         "description" => "For all chemical services, based on A-la-carte price",
-        "weight" => 16.8
+        "weight" => 20
     ],
     [
         "id" => 5,
         "title" => "1 X Herbal Spa Protection",
         "description" => "Worth $78",
-        "weight" => 25
+        "weight" => 20
     ],
     [
         "id" => 6,
@@ -90,6 +90,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $package_number = trim($_POST["package_number"] ?? "");
     $amount_collected = trim($_POST["amount_collected"] ?? "");
     $receipt_number = trim($_POST["receipt_number"] ?? "");
+    $outlet = trim($_POST['outlet'] ?? "");
 
     $prize_id = intval($_POST["prize_id"] ?? 0);
 
@@ -110,6 +111,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         empty($package_number) ||
         empty($amount_collected) ||
         empty($receipt_number) ||
+        empty($outlet) ||
         $prize_id < 1 ||
         $prize_id > count($prizes)
     ) {
@@ -174,11 +176,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             | H = Prize Won
             | I = Saff Name
             | J = Staff ID
+             
             |
             | Additional information:
             | packageDate
             | packageNumber
-            |
+            | Receipt Number
+            | Outlet
             */
             $googleData = [
 
@@ -205,6 +209,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 "packageNumber" => $package_number,
                 
                 "receiptNumber" => $receipt_number,
+                 
+                "outlet" => $outlet,
 
             ];
 
@@ -501,7 +507,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             color: #333;
         }
 
-        .form-group input {
+        .form-group input , .form-group select{
             width: 100%;
 
             padding: 14px 15px;
@@ -514,7 +520,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             outline: none;
         }
 
-        .form-group input:focus {
+        .form-group input:focus,.form-group select:focus {
             border-color: #8d0000;
         }
 
@@ -836,7 +842,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         required>
 
                 </div>
-                  <div class="form-group">
+                <div class="form-group">
 
                     <label for="staff_id">
                         Staff ID *
@@ -847,7 +853,37 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         id="staff_id"
                         name="staff_id"
                         required>
+                </div>
+                <div class="form-group">
 
+                    <label for="outlet">
+                        Outlet *
+                    </label>
+
+                    <select 
+                        id="outlet"
+                        name="outlet"
+                        required>
+                        <option value="">--Please choose an outlet--</option>
+                        <option value="Bugis Junction (Hub) #02-43">Bugis Junction (Hub) #02-43</option>
+                        <option value="Plaza Singapura (Hub) #04-02">Plaza Singapura (Hub) #04-02</option>
+                        <option value="Thomson Plaza #03-26">Thomson Plaza #03-26</option>
+                        <option value="Parkway Parade (Hub) #05-17">Parkway Parade (Hub) #05-17</option>
+                        <option value="Bishan Junction 8 (Hub) #03-06/07">Bishan Junction 8 (Hub) #03-06/07</option>
+                        <option value="Causeway Point #04-13/14">Causeway Point #04-13/14</option>
+                        <option value="Compass One, #04-08">Compass One, #04-08</option>
+                        <option value="Hougang Mall #04-03/04">Hougang Mall #04-03/04</option>
+                        <option value="Hougang St21 Heartland Mall #03-14">Hougang St21 Heartland Mall #03-14</option>
+                        <option value="NEX Serangoon #B2-31/32">NEX Serangoon #B2-31/32</option>
+                        <option value="Waterway Point, #B1-06/07">Waterway Point, #B1-06/07</option>
+                        <option value="Yishun North Point #B1-170/171">Yishun North Point #B1-170/171</option>
+                        <option value="Bukit Panjang Plaza #04-01">Bukit Panjang Plaza #04-01</option>
+                        <option value="Choa Chu Kang Lot 1 Shopper Mall #02-22">Choa Chu Kang Lot 1 Shopper Mall #02-22</option>
+                        <option value="Clementi Mall #05-06/07">Clementi Mall #05-06/07</option>
+                        <option value="JEM #03-41">JEM #03-41</option>
+                        <option value="Jurong Point (Hub) #02-16/17">Jurong Point (Hub) #02-16/17</option>
+                        <option value="West Mall #05-02/03/04">West Mall #05-02/03/04</option>
+                    </select>
                 </div>
 
                 <div class="form-group">
@@ -949,31 +985,31 @@ const prizes = [
         id: 1,
         title: "1 X Hydrating Treatment",
         worth: "Worth $98 - $158",
-        weight: 16.6
+        weight: 20
     },
     {
         id: 2,
         title: "1 X Hair Ampoule",
         worth: "Worth $58",
-        weight: 25
+        weight: 20
     },
     {
         id: 3,
         title: "1 X Scalp Detox Treatment",
         worth: "Worth $248",
-        weight: 16.6
+        weight: 20
     },
     {
         id: 4,
         title: "$50 Service Voucher",
         worth: "For all chemical services - Based on A-la-carte price",
-        weight: 16.8
+        weight: 20
     },
     {
         id: 5,
         title: "1 X Herbal Spa Protection",
         worth: "Worth $78",
-        weight: 25
+        weight: 20
     },
     {
         id: 6,
