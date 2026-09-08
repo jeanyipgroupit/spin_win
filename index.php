@@ -106,7 +106,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         empty($email) ||
         empty($contact) ||
         empty($staff) ||
-        empty($staff_id) ||
+       // empty($staff_id) ||
         empty($package_date) ||
         empty($package_number) ||
         empty($amount_collected) ||
@@ -202,7 +202,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
                 "staffName" => $staff,
 
-                "staffId" => $staff_id,
+            //    "staffId" => $staff_id,
 
                 "packageDate" => $package_date,
 
@@ -842,7 +842,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         required>
 
                 </div>
-                <div class="form-group">
+        <?php /* ?>   <div class="form-group">
 
                     <label for="staff_id">
                         Staff ID *
@@ -853,7 +853,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         id="staff_id"
                         name="staff_id"
                         required>
-                </div>
+                </div> <?php */ ?>
                 <div class="form-group">
 
                     <label for="outlet">
