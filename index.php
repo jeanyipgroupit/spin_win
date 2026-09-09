@@ -867,8 +867,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         <option value="">--Please choose an outlet--</option>
                         <option value="Bugis Junction (Hub) #02-43">Bugis Junction (Hub) #02-43</option>
                         <option value="Plaza Singapura (Hub) #04-02">Plaza Singapura (Hub) #04-02</option>
+                        <option value="Tiong Bahru Plaza #03-104">Tiong Bahru Plaza #03-104</option>
                         <option value="Thomson Plaza #03-26">Thomson Plaza #03-26</option>
+                        <option value="Vivo City (Hub) #02-231/232">Vivo City (Hub) #02-231/232</option>
                         <option value="Parkway Parade (Hub) #05-17">Parkway Parade (Hub) #05-17</option>
+                        <option value="Tampines Mall (Hub) #03-13/14/K1">Tampines Mall (Hub) #03-13/14/K1</option>
                         <option value="Bishan Junction 8 (Hub) #03-06/07">Bishan Junction 8 (Hub) #03-06/07</option>
                         <option value="Causeway Point #04-13/14">Causeway Point #04-13/14</option>
                         <option value="Compass One, #04-08">Compass One, #04-08</option>
